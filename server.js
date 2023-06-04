@@ -1,7 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const User = require('./Models/User'); 
+const bcrypt = require('bcryptjs');
+
+const Business = require('./Models/Business');
 
 const app = express();
 
@@ -24,6 +28,40 @@ app.post('/userregistration', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/businessregister', async (req, res) => {
+  try {
+    const { name, email, password, productType } = req.body;
+    const business = new Business({ name, email, password, productType });
+    await business.save();
+    res.status(200).json({ message: "Business registered successfully!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(400).json({ message: 'Invalid email or password.' });
+  }
+
+
+  const validPassword = await bcrypt.compare(password, user.password);
+
+  if (!validPassword) {
+    return res.status(400).json({ message: 'Invalid email or password.' });
+  }
+
+
+  const token = jwt.sign({ _id: user._id }, 'your_secret_key');
+  res.status(200).json({ token });
+});
+
 
 const port = 5000;
 
