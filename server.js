@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const User = require('./Models/User'); 
+const Item = require('./Models/Item');
 const bcrypt = require('bcryptjs');
 
 const Business = require('./Models/Business');
@@ -39,6 +40,49 @@ app.post('/businessregister', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
+app.post('/health', async (req, res) => {
+  try {
+      const { name, image, description } = req.body;
+      
+      const Item = require('./Models/Item'); 
+      const newItem = new Item({
+          name: name,
+          image: image,
+          description: description
+      });
+      
+      await newItem.save();
+      
+      res.status(201).json({
+          message: 'Item successfully created',
+          item: newItem
+      });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+          message: 'There was a problem creating the item'
+      });
+  }
+});
+
+
+app.get('/health', async (req, res) => {
+  try {
+      const Item = require('./Models/Item');
+      
+      const items = await Item.find({});
+      
+      res.status(200).json(items);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({
+          message: 'There was a problem fetching the items'
+      });
+  }
+});
+
 
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
