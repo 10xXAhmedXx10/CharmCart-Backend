@@ -42,13 +42,36 @@ app.post('/businessregister', async (req, res) => {
 });
 
 
-app.post('/health', async (req, res) => {
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(400).json({ alert: 'Invalid email or password.' });
+  }
+
+
+  const validPassword = await bcrypt.compare(password, user.password);
+
+  if (!validPassword) {
+    return res.status(400).json({ alert: 'Invalid email or password.' });
+  }
+
+
+  const token = jwt.sign({ _id: user._id }, 'your_secret_key');
+  res.status(200).json({ token });
+});
+
+app.post('/exercise', async (req, res) => {
   try {
-      const { name, image, description } = req.body;
+      const { name, price, image, description } = req.body;
       
       const Item = require('./Models/Item'); 
       const newItem = new Item({
           name: name,
+          price: price,
           image: image,
           description: description
       });
@@ -62,13 +85,13 @@ app.post('/health', async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({
-          message: 'There was a problem creating the item'
+          message: 'didnt work'
       });
   }
 });
 
 
-app.get('/health', async (req, res) => {
+app.get('/exercise', async (req, res) => {
   try {
       const Item = require('./Models/Item');
       
@@ -78,33 +101,38 @@ app.get('/health', async (req, res) => {
   } catch (error) {
       console.error(error);
       res.status(500).json({
-          message: 'There was a problem fetching the items'
+          message: 'didnt work tru again'
       });
   }
 });
 
 
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    return res.status(400).json({ message: 'Invalid email or password.' });
+app.delete('/exercise/:id', async (req, res) => {
+  try {
+      const itemId = req.params.id;
+      await Item.findByIdAndDelete(itemId);
+      res.status(200).json({ message: 'Item successfully deleted' });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'ops item its not deleted try again' });
   }
-
-
-  const validPassword = await bcrypt.compare(password, user.password);
-
-  if (!validPassword) {
-    return res.status(400).json({ message: 'Invalid email or password.' });
-  }
-
-
-  const token = jwt.sign({ _id: user._id }, 'your_secret_key');
-  res.status(200).json({ token });
 });
+
+app.put('/exercise/:id', async (req, res) => {
+  try {
+      const itemId = req.params.id;
+      const { name, price, image, description } = req.body;
+
+      const updatedItem = await Item.findByIdAndUpdate(itemId, { name, price, image, description }, { new: true });
+      
+      res.status(200).json({ message: 'Item successfully updated', item: updatedItem });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'here we go again ..still the item is not updating so try again' });
+  }
+});
+
+
 
 
 const port = 5000;
