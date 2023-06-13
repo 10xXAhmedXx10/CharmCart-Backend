@@ -22,21 +22,20 @@ mongoose.connect('mongodb+srv://Ahmed:Aoao0101@charmcart.dfzw2xe.mongodb.net/?re
 
 
 
-const authorizeBusinessUser = async (req, res, next) => {
+  const authorizeBusinessUser = async (req, res, next) => {
     const token = req.header('Authorization');
     if (!token) return res.status(401).send('Access Denied');
-
+  
     try {
-        const verified = jwt.verify(token, 'your_secret_key');
-        const business = await Business.findById(verified._id);
-        if (!business) return res.status(400).send('Invalid business');
-        req.business = business;
-        next();
+      const verified = jwt.verify(token, 'your_secret_key');
+      const business = await Business.findById(verified._id);
+      if (!business) return res.status(400).send('Invalid business');
+      req.business = business;
+      next();
     } catch (err) {
-        res.status(400).send('Invalid token');
+      res.status(400).send('Invalid token');
     }
-};
-
+  };
 
 
 app.post('/userregistration', async (req, res) => {
@@ -112,27 +111,26 @@ app.post('/businesslogin', async (req, res) => {
 
 app.post('/exercise', authorizeBusinessUser, async (req, res) => {
   try {
-      const { name, price, image, description } = req.body;
-      
-      const Item = require('./Models/Item'); 
-      const newItem = new Item({
-          name: name,
-          price: price,
-          image: image,
-          description: description
-      });
-      
-      await newItem.save();
-      
-      res.status(201).json({
-          message: 'Item successfully created',
-          item: newItem
-      });
+    const { name, price, image, description } = req.body;
+
+    const newItem = new Item({
+      name: name,
+      price: price,
+      image: image,
+      description: description,
+    });
+
+    await newItem.save();
+
+    res.status(201).json({
+      message: 'Item successfully created',
+      item: newItem,
+    });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({
-          message: 'didnt work'
-      });
+    console.error(error);
+    res.status(500).json({
+      message: 'Could not create item',
+    });
   }
 });
 
@@ -155,28 +153,33 @@ app.get('/exercise', async (req, res) => {
 
 app.delete('/exercise/:id', authorizeBusinessUser, async (req, res) => {
   try {
-      const itemId = req.params.id;
-      await Item.findByIdAndDelete(itemId);
-      res.status(200).json({ message: 'Item successfully deleted' });
+    const itemId = req.params.id;
+    await Item.findByIdAndDelete(itemId);
+    res.status(200).json({ message: 'Item successfully deleted' });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'ops item its not deleted try again' });
+    console.error(error);
+    res.status(500).json({ message: 'Could not delete item' });
   }
 });
 
-app.put('/exercise/:id', authorizeBusinessUser , async (req, res) => {
+app.put('/exercise/:id', authorizeBusinessUser, async (req, res) => {
   try {
-      const itemId = req.params.id;
-      const { name, price, image, description } = req.body;
+    const itemId = req.params.id;
+    const { name, price, image, description } = req.body;
 
-      const updatedItem = await Item.findByIdAndUpdate(itemId, { name, price, image, description }, { new: true });
-      
-      res.status(200).json({ message: 'Item successfully updated', item: updatedItem });
+    const updatedItem = await Item.findByIdAndUpdate(
+      itemId,
+      { name, price, image, description },
+      { new: true }
+    );
+
+    res.status(200).json({ message: 'Item successfully updated', item: updatedItem });
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'here we go again ..still the item is not updating so try again' });
+    console.error(error);
+    res.status(500).json({ message: 'Could not update item' });
   }
 });
+
 
 
 
