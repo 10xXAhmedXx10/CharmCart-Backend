@@ -22,22 +22,6 @@ mongoose.connect('mongodb+srv://Ahmed:Aoao0101@charmcart.dfzw2xe.mongodb.net/?re
 
 
 
-  const authorizeBusinessUser = async (req, res, next) => {
-    const token = req.header('Authorization');
-    if (!token) return res.status(401).send('Access Denied');
-  
-    try {
-      const verified = jwt.verify(token, 'your_secret_key');
-      const business = await Business.findById(verified._id);
-      if (!business) return res.status(400).send('Invalid business');
-      req.business = business;
-      next();
-    } catch (err) {
-      res.status(400).send('Invalid token');
-    }
-  };
-
-
 app.post('/userregistration', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -109,7 +93,7 @@ app.post('/businesslogin', async (req, res) => {
 
 
 
-app.post('/exercise', authorizeBusinessUser, async (req, res) => {
+app.post('/exercise', async (req, res) => {
   try {
     const { name, price, image, description } = req.body;
 
@@ -151,7 +135,7 @@ app.get('/exercise', async (req, res) => {
 });
 
 
-app.delete('/exercise/:id', authorizeBusinessUser, async (req, res) => {
+app.delete('/exercise/:id', async (req, res) => {
   try {
     const itemId = req.params.id;
     await Item.findByIdAndDelete(itemId);
@@ -162,7 +146,7 @@ app.delete('/exercise/:id', authorizeBusinessUser, async (req, res) => {
   }
 });
 
-app.put('/exercise/:id', authorizeBusinessUser, async (req, res) => {
+app.put('/exercise/:id', async (req, res) => {
   try {
     const itemId = req.params.id;
     const { name, price, image, description } = req.body;
