@@ -20,8 +20,7 @@ mongoose.connect('mongodb+srv://Ahmed:Aoao0101@charmcart.dfzw2xe.mongodb.net/?re
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
 
-  const jwt = require('jsonwebtoken');
-const Business = require('./Models/Business');
+
 
 const authorizeBusinessUser = async (req, res, next) => {
     const token = req.header('Authorization');
