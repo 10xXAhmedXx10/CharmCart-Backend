@@ -24,7 +24,7 @@ app.post('/userregistration', async (req, res) => {
     const { name, email, password } = req.body;
     const user = new User({ name, email, password });
     await user.save();
-    res.status(200).json({ message: "User registered successfully!" });
+    res.status(200).json({ message: "registered successfully!" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -35,7 +35,7 @@ app.post('/businessregister', async (req, res) => {
     const { name, email, password, productType } = req.body;
     const business = new Business({ name, email, password, productType });
     await business.save();
-    res.status(200).json({ message: "Business registered successfully!" });
+    res.status(200).json({ message: "registered successfully!" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -61,7 +61,7 @@ app.post('/login', async (req, res) => {
 
 
   const token = jwt.sign({ _id: user._id }, 'your_secret_key');
-  res.status(200).json({ token });
+  res.status(200).json({ token, name: user.name });
 });
 
 app.post('/exercise', async (req, res) => {
