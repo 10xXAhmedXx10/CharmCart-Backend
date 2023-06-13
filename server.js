@@ -19,6 +19,27 @@ mongoose.connect('mongodb+srv://Ahmed:Aoao0101@charmcart.dfzw2xe.mongodb.net/?re
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
+
+  const jwt = require('jsonwebtoken');
+const Business = require('./Models/Business');
+
+const authorizeBusinessUser = async (req, res, next) => {
+    const token = req.header('Authorization');
+    if (!token) return res.status(401).send('Access Denied');
+
+    try {
+        const verified = jwt.verify(token, 'your_secret_key');
+        const business = await Business.findById(verified._id);
+        if (!business) return res.status(400).send('Invalid business');
+        req.business = business;
+        next();
+    } catch (err) {
+        res.status(400).send('Invalid token');
+    }
+};
+
+
+
 app.post('/userregistration', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -40,6 +61,7 @@ app.post('/businessregister', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 
 app.post('/login', async (req, res) => {
@@ -89,7 +111,7 @@ app.post('/businesslogin', async (req, res) => {
 
 
 
-app.post('/exercise', async (req, res) => {
+app.post('/exercise', authorizeBusinessUser, async (req, res) => {
   try {
       const { name, price, image, description } = req.body;
       
@@ -116,7 +138,7 @@ app.post('/exercise', async (req, res) => {
 });
 
 
-app.get('/exercise', async (req, res) => {
+app.get('/exercise', authorizeBusinessUser, async (req, res) => {
   try {
       const Item = require('./Models/Item');
       
@@ -132,7 +154,7 @@ app.get('/exercise', async (req, res) => {
 });
 
 
-app.delete('/exercise/:id', async (req, res) => {
+app.delete('/exercise/:id', authorizeBusinessUser, async (req, res) => {
   try {
       const itemId = req.params.id;
       await Item.findByIdAndDelete(itemId);
@@ -143,7 +165,7 @@ app.delete('/exercise/:id', async (req, res) => {
   }
 });
 
-app.put('/exercise/:id', async (req, res) => {
+app.put('/exercise/:id', authorizeBusinessUser , async (req, res) => {
   try {
       const itemId = req.params.id;
       const { name, price, image, description } = req.body;
