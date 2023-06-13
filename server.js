@@ -64,6 +64,31 @@ app.post('/login', async (req, res) => {
   res.status(200).json({ token, name: user.name });
 });
 
+app.post('/businesslogin', async (req, res) => {
+  const { email, password } = req.body;
+
+ 
+  const business = await Business.findOne({ email });
+
+
+  if (!business) {
+    return res.status(400).json({ alert: 'Invalid email or password.' });
+  }
+
+  const validPassword = await bcrypt.compare(password, business.password);
+
+ 
+  if (!validPassword) {
+    return res.status(400).json({ alert: 'Invalid email or password.' });
+  }
+
+  
+  const token = jwt.sign({ _id: business._id }, 'your_secret_key');
+  res.status(200).json({ token, name: business.name });
+});
+
+
+
 app.post('/exercise', async (req, res) => {
   try {
       const { name, price, image, description } = req.body;
