@@ -137,7 +137,7 @@ app.post('/exercise', authorizeBusinessUser, async (req, res) => {
 });
 
 
-app.get('/exercise', authorizeBusinessUser, async (req, res) => {
+app.get('/exercise', async (req, res) => {
   try {
       const Item = require('./Models/Item');
       
